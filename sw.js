@@ -1,4 +1,4 @@
-const CACHE_NAME = 'toolkit-v2';
+const CACHE_NAME = 'toolkit-v3';
 const ASSETS = [
   './',
   './index.html',
@@ -28,6 +28,9 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
+  // Don't cache API calls to push server
+  if (event.request.url.includes('push.mjtronics.de')) return;
+
   event.respondWith(
     caches.match(event.request).then(cached => {
       const fetchPromise = fetch(event.request).then(response => {
@@ -42,16 +45,63 @@ self.addEventListener('fetch', event => {
   );
 });
 
+// Push notifications from server
+self.addEventListener('push', event => {
+  let data = { title: 'Millads Toolkit', body: 'Neue Erinnerung' };
+
+  if (event.data) {
+    try {
+      data = event.data.json();
+    } catch (e) {
+      data.body = event.data.text();
+    }
+  }
+
+  const options = {
+    body: data.body,
+    icon: 'icon-192.png',
+    badge: 'icon-192.png',
+    vibrate: data.vibrate || [200, 100, 200],
+    tag: data.tag || 'toolkit',
+    renotify: true,
+    requireInteraction: data.requireInteraction || false,
+    data: {
+      url: data.url || '/',
+    },
+  };
+
+  if (data.actions) {
+    options.actions = data.actions;
+  }
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
+});
+
+// Notification click
 self.addEventListener('notificationclick', event => {
   event.notification.close();
+
+  let targetUrl = event.notification.data?.url || '/';
+
+  // Handle action buttons
+  if (event.action === 'open-checklist') {
+    targetUrl = '/checkliste.html';
+  }
+
+  // Resolve relative URLs against the SW origin
+  const fullUrl = new URL(targetUrl, self.location.origin).href;
+
   event.waitUntil(
     self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
       for (const client of clients) {
         if (client.url.includes(self.location.origin) && 'focus' in client) {
+          client.navigate(fullUrl);
           return client.focus();
         }
       }
-      return self.clients.openWindow('./');
+      return self.clients.openWindow(fullUrl);
     })
   );
 });
