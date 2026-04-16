@@ -550,41 +550,6 @@
     return getKernRules().includes(id);
   }
 
-  // === BUILD LIST ===
-  const list = document.getElementById("list");
-
-  rules.forEach((sec, sIdx) => {
-    const secEl = document.createElement("div");
-    secEl.className = "section";
-    secEl.innerHTML = `<div class="section-title">${sec.section.toUpperCase()}</div>`;
-    sec.items.forEach((label, iIdx) => {
-      const id = `s${sIdx}_i${iIdx}`;
-      idToLabel[id] = label;
-      const item = document.createElement("div");
-      item.className = "item" + (isKern(id) ? " kern" : "");
-      item.dataset.id = id;
-      const badge = isKern(id) ? '<div class="kern-badge">★</div>' : '';
-      item.innerHTML = `<div class="checkbox"></div><div class="label">${label}</div>${badge}`;
-      item.addEventListener("click", () => toggle(id, item));
-      secEl.appendChild(item);
-      allItems.push({ id, el: item, label });
-      totalCount++;
-    });
-    list.appendChild(secEl);
-
-    // Insert water tracker after "Mittag & Familie" section (index 2)
-    if (sIdx === 2) {
-      totalCount++;
-      const waterEl = document.createElement("div");
-      waterEl.className = "water-card";
-      waterEl.id = "water-tracker";
-      waterEl.innerHTML = buildWaterHTML();
-      list.appendChild(waterEl);
-    }
-  });
-
-  document.getElementById("total").textContent = totalCount;
-
   // === WATER TRACKER ===
   let currentWater = getWaterCount(todayISO);
 
@@ -628,6 +593,41 @@
     setWaterCount(todayISO, currentWater);
     refreshWaterUI();
   });
+
+  // === BUILD LIST ===
+  const list = document.getElementById("list");
+
+  rules.forEach((sec, sIdx) => {
+    const secEl = document.createElement("div");
+    secEl.className = "section";
+    secEl.innerHTML = `<div class="section-title">${sec.section.toUpperCase()}</div>`;
+    sec.items.forEach((label, iIdx) => {
+      const id = `s${sIdx}_i${iIdx}`;
+      idToLabel[id] = label;
+      const item = document.createElement("div");
+      item.className = "item" + (isKern(id) ? " kern" : "");
+      item.dataset.id = id;
+      const badge = isKern(id) ? '<div class="kern-badge">★</div>' : '';
+      item.innerHTML = `<div class="checkbox"></div><div class="label">${label}</div>${badge}`;
+      item.addEventListener("click", () => toggle(id, item));
+      secEl.appendChild(item);
+      allItems.push({ id, el: item, label });
+      totalCount++;
+    });
+    list.appendChild(secEl);
+
+    // Insert water tracker after "Mittag & Familie" section (index 2)
+    if (sIdx === 2) {
+      totalCount++;
+      const waterEl = document.createElement("div");
+      waterEl.className = "water-card";
+      waterEl.id = "water-tracker";
+      waterEl.innerHTML = buildWaterHTML();
+      list.appendChild(waterEl);
+    }
+  });
+
+  document.getElementById("total").textContent = totalCount;
 
   // === CHECKLIST STATE ===
   function loadState() {
