@@ -1,44 +1,59 @@
 // Shared data and utilities for Millads Toolkit
+// v2: Tagesablauf-Reihenfolge + Wasser-Tracker
 
 const RULES = [
-  { section: "Deen", items: [
+  { section: "Morgen (Fajr–9:00)", items: [
+    "6-8 Stunden geschlafen (Vortag)",
     "2 Ayat auswendig gelernt + Tafsir",
     "1 Kapitel Madinah-Buch",
-    "10 Min Abend-Adhkar",
-    "10-20 Min Vortrag mit Familie geschaut",
+    "30 Min Pflege (Klamotten, Bart, Haare, Produkte)",
+    "Vit D, Magnesium, Omega 3 eingenommen",
   ]},
-  { section: "Körper", items: [
+  { section: "Vormittag (9:00–12:30)", items: [
     "Fitness gemacht (oder Pause-Tag, max. 3 am Stück)",
+    "Max. 2h am Stück gearbeitet",
+  ]},
+  { section: "Mittag & Familie (12:30–15:00)", items: [
+    "Mindestens 2500 kcal gegessen",
+    "10 Min mit Inaaya bei Eltern oder Moschee",
+  ]},
+  // ↑ Water tracker is rendered here in the UI (not in rules array)
+  { section: "Nachmittag (15:00–18:00)", items: [
+    "10 Seiten in einem guten Buch gelesen",
+    "15 Min nachgedacht: jemandem Freude machen",
+    "15 Min Ausflug/Treffen geplant oder Ersatztätigkeit",
+    "Max. 6h gearbeitet",
+    "Nicht nach 18 Uhr gearbeitet",
+  ]},
+  { section: "Feierabend (18:00–18:45)", items: [
     "15 Min laufen",
     "10 Min dehnen",
     "10 Min Nackentraining",
-    "Mindestens 2500 kcal gegessen",
-    "Vit D, Magnesium, Omega 3 eingenommen",
-    "4 Gläser Wasser bis 15 Uhr",
-    "4 weitere Gläser Wasser bis 22 Uhr",
-    "Max. 1 Stück Süßes",
-    "6-8 Stunden geschlafen (Vortag)",
-    "30 Min Pflege (Klamotten, Bart, Haare, Produkte)",
   ]},
-  { section: "Familie & Charakter", items: [
-    "15 Min Ausflug/Treffen geplant oder Ersatztätigkeit",
-    "10 Min mit Inaaya bei Eltern oder Moschee",
-    "15 Min nachgedacht: jemandem Freude machen",
-  ]},
-  { section: "Wissen", items: [
-    "10 Seiten in einem guten Buch gelesen",
+  { section: "Abend (18:45–21:00)", items: [
+    "10-20 Min Vortrag mit Familie geschaut",
     "Max. 1h YouTube (nur nützliche Inhalte)",
-  ]},
-  { section: "Arbeit & Disziplin", items: [
-    "Max. 6h gearbeitet",
-    "Max. 2h am Stück gearbeitet",
-    "Nicht nach 18 Uhr gearbeitet",
-    "Ab 21 Uhr keine Geräte",
+    "Max. 1 Stück Süßes",
     "Letzte Mahlzeit vor 21 Uhr",
+  ]},
+  { section: "Wind Down (ab 21:00)", items: [
+    "Ab 21 Uhr keine Geräte",
+    "10 Min Abend-Adhkar",
   ]},
 ];
 
-const DEFAULT_KERN = ['s0_i0', 's1_i0', 's1_i8', 's3_i1', 's4_i2', 's4_i3', 's4_i4'];
+const DEFAULT_KERN = ['s0_i1', 's1_i0', 's3_i4', 's5_i1', 's5_i2', 's5_i3', 's6_i0'];
+const WATER_GOAL = 8;
+const RULES_VERSION = 2;
+
+// Migrate old kern_rules from v1 layout
+(function migrateKernRules() {
+  const v = localStorage.getItem('rules_version');
+  if (v !== String(RULES_VERSION)) {
+    localStorage.removeItem('kern_rules');
+    localStorage.setItem('rules_version', String(RULES_VERSION));
+  }
+})();
 
 // Build flat list of all rule IDs + labels
 const ALL_RULE_IDS = [];
@@ -50,6 +65,9 @@ RULES.forEach((sec, sIdx) => {
     ID_TO_LABEL[id] = label;
   });
 });
+// Water tracker as virtual rule
+ALL_RULE_IDS.push('water');
+ID_TO_LABEL['water'] = 'Wasser (8 Gläser)';
 
 function getKernRules() {
   try {
@@ -69,7 +87,18 @@ function addDays(d, n) {
   return r;
 }
 
-// Get checklist state for a given date
+function getWaterCount(iso) {
+  try {
+    const v = localStorage.getItem('water_' + iso);
+    if (v !== null) return parseInt(v, 10) || 0;
+  } catch(e) {}
+  return 0;
+}
+
+function setWaterCount(iso, count) {
+  localStorage.setItem('water_' + iso, String(Math.max(0, Math.min(count, 12))));
+}
+
 function getDayChecklist(iso) {
   try {
     const raw = localStorage.getItem('checklist_' + iso);
@@ -78,7 +107,6 @@ function getDayChecklist(iso) {
   return null;
 }
 
-// Analyze a single day: returns { done, total, kernDone, kernTotal, kernClean, items: {id: bool} }
 function analyzeDayResult(iso) {
   const data = getDayChecklist(iso);
   if (!data) return null;
@@ -86,44 +114,56 @@ function analyzeDayResult(iso) {
   const kern = getKernRules();
   let done = 0, total = 0, kernDone = 0, kernTotal = 0;
 
-  ALL_RULE_IDS.forEach(id => {
-    total++;
-    const checked = !!data[id];
-    if (checked) done++;
-    if (kern.includes(id)) {
-      kernTotal++;
-      if (checked) kernDone++;
-    }
+  // Regular rules
+  RULES.forEach((sec, sIdx) => {
+    sec.items.forEach((label, iIdx) => {
+      const id = `s${sIdx}_i${iIdx}`;
+      total++;
+      const checked = !!data[id];
+      if (checked) done++;
+      if (kern.includes(id)) {
+        kernTotal++;
+        if (checked) kernDone++;
+      }
+    });
   });
+
+  // Water tracker
+  total++;
+  const water = getWaterCount(iso);
+  const waterDone = water >= WATER_GOAL;
+  if (waterDone) done++;
+  if (kern.includes('water')) {
+    kernTotal++;
+    if (waterDone) kernDone++;
+  }
+
+  const items = { ...data, water: waterDone };
 
   return {
     done, total, kernDone, kernTotal,
     kernClean: kernDone === kernTotal,
     pct: total > 0 ? Math.round(done / total * 100) : 0,
-    items: data,
+    items,
+    waterCount: water,
   };
 }
 
-// Calculate streak: consecutive days (going back from yesterday) with all kern rules done
 function calculateStreak() {
   const today = new Date();
   let streak = 0;
 
-  // Check today first (if day was already finished)
   const todayResult = analyzeDayResult(dateISO(today));
   const todayFinished = localStorage.getItem('penalty_' + dateISO(today)) !== null
     || (todayResult && todayResult.done > 0);
 
-  // Start from today if finished, otherwise yesterday
   let checkDate = todayFinished ? new Date(today) : addDays(today, -1);
 
   for (let i = 0; i < 365; i++) {
     const iso = dateISO(checkDate);
     const result = analyzeDayResult(iso);
-
     if (!result) break;
     if (!result.kernClean) break;
-
     streak++;
     checkDate = addDays(checkDate, -1);
   }
@@ -131,7 +171,6 @@ function calculateStreak() {
   return streak;
 }
 
-// Get data for the last N days
 function getWeekData(days) {
   days = days || 7;
   const today = new Date();
@@ -151,7 +190,6 @@ function getWeekData(days) {
   return results.reverse();
 }
 
-// Per-rule stats for the week
 function getRuleWeekStats(days) {
   days = days || 7;
   const weekData = getWeekData(days);
@@ -171,7 +209,6 @@ function getRuleWeekStats(days) {
   return stats;
 }
 
-// Get penalties this week
 function getWeekPenalties() {
   const today = new Date();
   let count = 0;
@@ -195,7 +232,6 @@ function getWeekPenalties() {
   return { count, penalties };
 }
 
-// Previous week completion % (for trend comparison)
 function getLastWeekPct() {
   const today = new Date();
   let totalDone = 0, totalRules = 0;

@@ -406,6 +406,75 @@
     background: #f5a623;
     border-radius: 2px;
   }
+
+  /* Water Tracker */
+  .water-card {
+    background: #1a2230;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 22px;
+  }
+  .water-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+  .water-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .water-count {
+    font-size: 14px;
+    font-weight: 700;
+    color: #4a90e2;
+  }
+  .water-count.done { color: #50c878; }
+  .water-glasses {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .water-glass {
+    width: 36px;
+    height: 42px;
+    border: 2px solid #2a3445;
+    border-radius: 4px 4px 8px 8px;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.15s;
+    position: relative;
+    overflow: hidden;
+  }
+  .water-glass:active { transform: scale(0.92); }
+  .water-glass.filled {
+    border-color: #4a90e2;
+  }
+  .water-glass-fill {
+    width: 100%;
+    height: 0%;
+    background: linear-gradient(180deg, #4a90e2, #2563eb);
+    border-radius: 0 0 6px 6px;
+    transition: height 0.2s ease-out;
+  }
+  .water-glass.filled .water-glass-fill {
+    height: 80%;
+  }
+  .water-glass-num {
+    position: absolute;
+    font-size: 11px;
+    color: #5a6878;
+    top: 2px;
+    font-weight: 600;
+  }
+  .water-glass.filled .water-glass-num { color: #fff; }
 </style>
 </head>
 <body>
@@ -502,9 +571,63 @@
       totalCount++;
     });
     list.appendChild(secEl);
+
+    // Insert water tracker after "Mittag & Familie" section (index 2)
+    if (sIdx === 2) {
+      totalCount++;
+      const waterEl = document.createElement("div");
+      waterEl.className = "water-card";
+      waterEl.id = "water-tracker";
+      waterEl.innerHTML = buildWaterHTML();
+      list.appendChild(waterEl);
+    }
   });
 
   document.getElementById("total").textContent = totalCount;
+
+  // === WATER TRACKER ===
+  let currentWater = getWaterCount(todayISO);
+
+  function buildWaterHTML() {
+    let glasses = '';
+    for (let i = 1; i <= WATER_GOAL; i++) {
+      const filled = i <= currentWater ? 'filled' : '';
+      glasses += `<div class="water-glass ${filled}" data-glass="${i}">
+        <div class="water-glass-fill"></div>
+        <div class="water-glass-num">${i}</div>
+      </div>`;
+    }
+    const countClass = currentWater >= WATER_GOAL ? 'done' : '';
+    return `
+      <div class="water-header">
+        <div class="water-title">💧 Wasser-Tracker</div>
+        <div class="water-count ${countClass}" id="water-display">${currentWater}/${WATER_GOAL} Gläser</div>
+      </div>
+      <div class="water-glasses" id="water-glasses">${glasses}</div>
+    `;
+  }
+
+  function refreshWaterUI() {
+    const display = document.getElementById('water-display');
+    if (display) {
+      display.textContent = `${currentWater}/${WATER_GOAL} Gläser`;
+      display.className = 'water-count' + (currentWater >= WATER_GOAL ? ' done' : '');
+    }
+    document.querySelectorAll('.water-glass').forEach(g => {
+      const num = parseInt(g.dataset.glass);
+      g.classList.toggle('filled', num <= currentWater);
+    });
+    updateProgress();
+  }
+
+  document.addEventListener('click', (e) => {
+    const glass = e.target.closest('.water-glass');
+    if (!glass) return;
+    const num = parseInt(glass.dataset.glass);
+    currentWater = currentWater === num ? num - 1 : num;
+    setWaterCount(todayISO, currentWater);
+    refreshWaterUI();
+  });
 
   // === CHECKLIST STATE ===
   function loadState() {
@@ -535,7 +658,8 @@
   }
 
   function updateProgress() {
-    const done = allItems.filter(({el}) => el.classList.contains("done")).length;
+    let done = allItems.filter(({el}) => el.classList.contains("done")).length;
+    if (currentWater >= WATER_GOAL) done++;
     document.getElementById("count").textContent = done;
     document.getElementById("fill").style.width = (done / totalCount * 100) + "%";
   }
@@ -543,6 +667,9 @@
   document.getElementById("reset").addEventListener("click", () => {
     if (!confirm("Alle Häkchen für heute zurücksetzen?")) return;
     allItems.forEach(({el}) => el.classList.remove("done"));
+    currentWater = 0;
+    setWaterCount(todayISO, 0);
+    refreshWaterUI();
     const panel = document.getElementById("penalty");
     panel.classList.remove("show");
     localStorage.removeItem('penalty_' + todayISO);
@@ -592,6 +719,16 @@
       title = 'Kein Verstoß — Alhamdulillah!';
       desc = 'Alles erledigt. Weiter so!';
       icon = '💪';
+    }
+
+    // Water check
+    if (currentWater < WATER_GOAL) {
+      const waterLabel = `Wasser: ${currentWater}/${WATER_GOAL} Gläser`;
+      if (kern.includes('water')) {
+        kernViolations.push({ id: 'water', label: waterLabel, type: 'kern' });
+      } else {
+        nebenViolations.push({ id: 'water', label: waterLabel, type: 'neben' });
+      }
     }
 
     return { level, title, desc, icon, kernViolations, nebenViolations };
@@ -716,26 +853,31 @@
   function renderModalList() {
     const ml = document.getElementById("modal-list");
     ml.innerHTML = '';
+
+    function addModalItem(id, label) {
+      const active = tempKern.includes(id);
+      const item = document.createElement("div");
+      item.className = 'modal-item' + (active ? ' active' : '');
+      item.dataset.id = id;
+      item.innerHTML = `<div class="modal-cb"></div><div class="modal-label">${label}</div>`;
+      item.addEventListener("click", () => {
+        const idx = tempKern.indexOf(id);
+        if (idx >= 0) {
+          tempKern.splice(idx, 1);
+          item.classList.remove("active");
+        } else {
+          tempKern.push(id);
+          item.classList.add("active");
+        }
+      });
+      ml.appendChild(item);
+    }
+
     rules.forEach((sec, sIdx) => {
       sec.items.forEach((label, iIdx) => {
-        const id = `s${sIdx}_i${iIdx}`;
-        const active = tempKern.includes(id);
-        const item = document.createElement("div");
-        item.className = 'modal-item' + (active ? ' active' : '');
-        item.dataset.id = id;
-        item.innerHTML = `<div class="modal-cb"></div><div class="modal-label">${label}</div>`;
-        item.addEventListener("click", () => {
-          const idx = tempKern.indexOf(id);
-          if (idx >= 0) {
-            tempKern.splice(idx, 1);
-            item.classList.remove("active");
-          } else {
-            tempKern.push(id);
-            item.classList.add("active");
-          }
-        });
-        ml.appendChild(item);
+        addModalItem(`s${sIdx}_i${iIdx}`, label);
       });
+      if (sIdx === 2) addModalItem('water', '💧 Wasser (8 Gläser)');
     });
   }
 
