@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Wochen-Statistik</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1419">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1419;
+    color: #e8e8e8;
+    padding: 16px;
+    line-height: 1.4;
+    min-height: 100vh;
+  }
+  .container { max-width: 700px; margin: 0 auto; }
+  .back-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    color: #4a90e2; text-decoration: none; font-size: 14px; margin-bottom: 12px;
+  }
+  h1 { font-size: 24px; text-align: center; color: #fff; margin-bottom: 4px; }
+  .page-desc { text-align: center; color: #8a96a3; font-size: 14px; margin-bottom: 20px; }
+
+  /* Summary Cards */
+  .summary-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; margin-bottom: 24px;
+  }
+  .summary-card {
+    background: #1a2230; border-radius: 12px; padding: 16px; text-align: center;
+  }
+  .summary-value { font-size: 28px; font-weight: 800; color: #fff; margin-bottom: 2px; }
+  .summary-value.good { color: #50c878; }
+  .summary-value.warn { color: #f5a623; }
+  .summary-value.bad { color: #e2729a; }
+  .summary-label { font-size: 12px; color: #8a96a3; }
+
+  /* Day Overview */
+  .section-title {
+    font-size: 12px; font-weight: 700; color: #8a96a3;
+    letter-spacing: 1px; margin-bottom: 10px; padding-left: 4px;
+  }
+  .day-row {
+    display: flex; align-items: center; gap: 12px;
+    background: #1a2230; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 6px;
+  }
+  .day-name { width: 30px; font-size: 13px; font-weight: 600; color: #8a96a3; flex-shrink: 0; }
+  .day-bar-wrap { flex: 1; height: 8px; background: #0f1419; border-radius: 4px; overflow: hidden; }
+  .day-bar {
+    height: 100%; border-radius: 4px; transition: width 0.3s;
+    background: linear-gradient(90deg, #50c878, #4a90e2);
+  }
+  .day-bar.low { background: linear-gradient(90deg, #e2729a, #f5a623); }
+  .day-bar.mid { background: linear-gradient(90deg, #f5a623, #4a90e2); }
+  .day-pct { width: 36px; text-align: right; font-size: 13px; font-weight: 600; color: #c5cdd6; }
+  .day-kern {
+    width: 18px; text-align: center; font-size: 14px;
+  }
+  .day-empty { color: #3a4a5e; font-size: 13px; text-align: center; padding: 8px; }
+
+  /* Rule Breakdown */
+  .rule-card {
+    background: #1a2230; border-radius: 10px;
+    padding: 12px 16px; margin-bottom: 6px;
+    display: flex; align-items: center; gap: 12px;
+    border-left: 3px solid transparent;
+  }
+  .rule-card.kern { border-left-color: #f5a623; }
+  .rule-info { flex: 1; min-width: 0; }
+  .rule-label {
+    font-size: 13px; color: #e8e8e8; white-space: nowrap;
+    overflow: hidden; text-overflow: ellipsis;
+  }
+  .rule-bar-wrap {
+    height: 6px; background: #0f1419; border-radius: 3px;
+    margin-top: 6px; overflow: hidden;
+  }
+  .rule-bar {
+    height: 100%; border-radius: 3px;
+  }
+  .rule-bar.green { background: #50c878; }
+  .rule-bar.yellow { background: #f5a623; }
+  .rule-bar.red { background: #e2729a; }
+  .rule-score {
+    font-size: 14px; font-weight: 700; min-width: 40px; text-align: right;
+    flex-shrink: 0;
+  }
+  .rule-score.green { color: #50c878; }
+  .rule-score.yellow { color: #f5a623; }
+  .rule-score.red { color: #e2729a; }
+
+  /* Weak spots */
+  .weak-card {
+    background: linear-gradient(135deg, #2e0a0a, #1a2230);
+    border: 1px solid #e2729a33;
+    border-radius: 12px; padding: 16px 18px; margin-bottom: 20px;
+  }
+  .weak-title {
+    font-size: 14px; font-weight: 700; color: #e2729a; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .weak-item {
+    font-size: 13px; color: #c5cdd6; padding: 4px 0;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .weak-pct { color: #e2729a; font-weight: 600; min-width: 36px; }
+
+  .no-data {
+    text-align: center; color: #5a6878; padding: 40px 20px;
+    font-size: 15px;
+  }
+
+  .footer-note {
+    text-align: center; color: #5a6878; font-size: 12px;
+    margin-top: 20px; padding: 0 20px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back-link">&#8249; Zurück</a>
+  <h1>📊 Wochen-Statistik</h1>
+  <p class="page-desc">Letzte 7 Tage im Überblick</p>
+
+  <div id="content"></div>
+</div>
+
+<script src="shared.js"></script>
+<script>
+  checkNightLock();
+
+  const content = document.getElementById('content');
+  const weekData = getWeekData(7);
+  const hasData = weekData.some(d => d.result !== null);
+
+  if (!hasData) {
+    content.innerHTML = '<div class="no-data">Noch keine Daten vorhanden.<br>Schließe deinen ersten Tag in der Checkliste ab.</div>';
+  } else {
+    render();
+  }
+
+  function render() {
+    const streak = calculateStreak();
+    const thisWeek = getThisWeekPct();
+    const lastWeek = getLastWeekPct();
+    const penalties = getWeekPenalties();
+    const ruleStats = getRuleWeekStats(7);
+    const trackedDays = weekData.filter(d => d.result).length;
+
+    // Summary
+    const pctClass = thisWeek >= 70 ? 'good' : thisWeek >= 40 ? 'warn' : 'bad';
+    const penClass = penalties.count === 0 ? 'good' : penalties.count <= 2 ? 'warn' : 'bad';
+    const streakClass = streak >= 5 ? 'good' : streak >= 2 ? 'warn' : 'bad';
+
+    let trendStr = '';
+    if (lastWeek !== null) {
+      const diff = thisWeek - lastWeek;
+      if (diff > 0) trendStr = `<span style="color:#50c878; font-size:12px;">↑ +${diff}%</span>`;
+      else if (diff < 0) trendStr = `<span style="color:#e2729a; font-size:12px;">↓ ${diff}%</span>`;
+      else trendStr = `<span style="color:#8a96a3; font-size:12px;">→</span>`;
+    }
+
+    let html = `
+      <div class="summary-grid">
+        <div class="summary-card">
+          <div class="summary-value ${pctClass}">${thisWeek}%</div>
+          <div class="summary-label">Eingehalten ${trendStr}</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value ${streakClass}">🔥 ${streak}</div>
+          <div class="summary-label">Tage Kern-Streak</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value ${penClass}">${penalties.count}</div>
+          <div class="summary-label">Strafen diese Woche</div>
+        </div>
+        <div class="summary-card">
+          <div class="summary-value">${trackedDays}/7</div>
+          <div class="summary-label">Tage erfasst</div>
+        </div>
+      </div>
+    `;
+
+    // Day overview
+    html += '<div class="section-title">TAGESÜBERSICHT</div>';
+    weekData.forEach(day => {
+      if (!day.result) {
+        html += `<div class="day-row">
+          <span class="day-name">${day.dayName}</span>
+          <span class="day-empty" style="flex:1;">—</span>
+          <span class="day-kern"></span>
+        </div>`;
+        return;
+      }
+      const r = day.result;
+      const barClass = r.pct >= 70 ? '' : r.pct >= 40 ? 'mid' : 'low';
+      const kernIcon = r.kernClean ? '✓' : '✗';
+      const kernColor = r.kernClean ? '#50c878' : '#e2729a';
+      html += `<div class="day-row">
+        <span class="day-name">${day.dayName}</span>
+        <div class="day-bar-wrap"><div class="day-bar ${barClass}" style="width:${r.pct}%"></div></div>
+        <span class="day-pct">${r.pct}%</span>
+        <span class="day-kern" style="color:${kernColor}">${kernIcon}</span>
+      </div>`;
+    });
+
+    // Weak spots (bottom 5 rules)
+    const sortedRules = Object.entries(ruleStats)
+      .filter(([id, s]) => s.tracked > 0)
+      .map(([id, s]) => ({ id, ...s, pct: Math.round(s.completed / s.tracked * 100) }))
+      .sort((a, b) => a.pct - b.pct);
+
+    const weakRules = sortedRules.filter(r => r.pct < 100).slice(0, 5);
+    if (weakRules.length > 0) {
+      html += `<div class="weak-card" style="margin-top:20px;">
+        <div class="weak-title">⚠️ Schwachstellen</div>`;
+      weakRules.forEach(r => {
+        const marker = r.isKern ? '<span style="color:#f5a623;">★</span>' : '<span style="color:#5a6878;">○</span>';
+        html += `<div class="weak-item">
+          ${marker}
+          <span style="flex:1;">${r.label}</span>
+          <span class="weak-pct">${r.completed}/${r.tracked}</span>
+        </div>`;
+      });
+      html += '</div>';
+    }
+
+    // Full rule breakdown
+    html += '<div class="section-title" style="margin-top:20px;">ALLE REGELN</div>';
+    sortedRules.sort((a, b) => {
+      if (a.isKern !== b.isKern) return a.isKern ? -1 : 1;
+      return a.pct - b.pct;
+    });
+
+    sortedRules.forEach(r => {
+      const barColor = r.pct >= 70 ? 'green' : r.pct >= 40 ? 'yellow' : 'red';
+      html += `<div class="rule-card ${r.isKern ? 'kern' : ''}">
+        <div class="rule-info">
+          <div class="rule-label">${r.isKern ? '★ ' : ''}${r.label}</div>
+          <div class="rule-bar-wrap"><div class="rule-bar ${barColor}" style="width:${r.pct}%"></div></div>
+        </div>
+        <div class="rule-score ${barColor}">${r.completed}/${r.tracked}</div>
+      </div>`;
+    });
+
+    html += '<p class="footer-note">Basiert auf den letzten 7 Tagen aus der Checkliste.</p>';
+
+    content.innerHTML = html;
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+<script src="notifications.js"></script>
+</body>
+</html>

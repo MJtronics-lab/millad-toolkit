@@ -1,10 +1,12 @@
-const CACHE_NAME = 'toolkit-v3';
+const CACHE_NAME = 'toolkit-v4';
 const ASSETS = [
   './',
   './index.html',
   './tagesplan.html',
   './checkliste.html',
   './erinnerungen.html',
+  './statistik.html',
+  './shared.js',
   './notifications.js',
   './manifest.json',
   './icon-192.png',

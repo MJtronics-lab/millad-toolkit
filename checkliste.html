@@ -455,47 +455,13 @@
   </div>
 </div>
 
+<script src="shared.js"></script>
 <script>
-  // === DATA ===
-  const rules = [
-    { section: "Deen", items: [
-      "2 Ayat auswendig gelernt + Tafsir",
-      "1 Kapitel Madinah-Buch",
-      "10 Min Abend-Adhkar",
-      "10-20 Min Vortrag mit Familie geschaut",
-    ]},
-    { section: "Körper", items: [
-      "Fitness gemacht (oder Pause-Tag, max. 3 am Stück)",
-      "15 Min laufen",
-      "10 Min dehnen",
-      "10 Min Nackentraining",
-      "Mindestens 2500 kcal gegessen",
-      "Vit D, Magnesium, Omega 3 eingenommen",
-      "4 Gläser Wasser bis 15 Uhr",
-      "4 weitere Gläser Wasser bis 22 Uhr",
-      "Max. 1 Stück Süßes",
-      "6-8 Stunden geschlafen (Vortag)",
-      "30 Min Pflege (Klamotten, Bart, Haare, Produkte)",
-    ]},
-    { section: "Familie & Charakter", items: [
-      "15 Min Ausflug/Treffen geplant oder Ersatztätigkeit",
-      "10 Min mit Inaaya bei Eltern oder Moschee",
-      "15 Min nachgedacht: jemandem Freude machen",
-    ]},
-    { section: "Wissen", items: [
-      "10 Seiten in einem guten Buch gelesen",
-      "Max. 1h YouTube (nur nützliche Inhalte)",
-    ]},
-    { section: "Arbeit & Disziplin", items: [
-      "Max. 6h gearbeitet",
-      "Max. 2h am Stück gearbeitet",
-      "Nicht nach 18 Uhr gearbeitet",
-      "Ab 21 Uhr keine Geräte",
-      "Letzte Mahlzeit vor 21 Uhr",
-    ]},
-  ];
+  // Night lock check
+  checkNightLock();
 
-  const DEFAULT_KERN = ['s0_i0', 's1_i0', 's1_i8', 's3_i1', 's4_i2', 's4_i3', 's4_i4'];
+  // Use shared data
+  const rules = RULES;
 
   // === STATE ===
   const today = new Date().toLocaleDateString("de-DE", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
@@ -506,14 +472,6 @@
   let allItems = [];
   let totalCount = 0;
   let idToLabel = {};
-
-  function getKernRules() {
-    try {
-      const saved = localStorage.getItem('kern_rules');
-      if (saved) return JSON.parse(saved);
-    } catch(e) {}
-    return [...DEFAULT_KERN];
-  }
 
   function saveKernRules(kernIds) {
     localStorage.setItem('kern_rules', JSON.stringify(kernIds));
