@@ -1,9 +1,11 @@
-const CACHE_NAME = 'toolkit-v1';
+const CACHE_NAME = 'toolkit-v2';
 const ASSETS = [
   './',
   './index.html',
   './tagesplan.html',
   './checkliste.html',
+  './erinnerungen.html',
+  './notifications.js',
   './manifest.json',
   './icon-192.png',
   './icon-512.png'
@@ -36,6 +38,20 @@ self.addEventListener('fetch', event => {
         return response;
       }).catch(() => cached);
       return cached || fetchPromise;
+    })
+  );
+});
+
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clients => {
+      for (const client of clients) {
+        if (client.url.includes(self.location.origin) && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      return self.clients.openWindow('./');
     })
   );
 });
