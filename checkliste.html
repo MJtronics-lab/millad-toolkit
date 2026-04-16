@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tägliche Checkliste</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1419">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1419;
+    color: #e8e8e8;
+    padding: 16px;
+    line-height: 1.4;
+    min-height: 100vh;
+  }
+  .container { max-width: 700px; margin: 0 auto; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #4a90e2;
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 24px;
+    text-align: center;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .date {
+    text-align: center;
+    color: #8a96a3;
+    font-size: 14px;
+    margin-bottom: 16px;
+  }
+  .progress-wrap {
+    background: #1a2230;
+    border-radius: 12px;
+    padding: 14px 18px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+  .progress-text {
+    font-size: 14px;
+    color: #c5cdd6;
+    margin-bottom: 8px;
+  }
+  .progress-bar {
+    height: 8px;
+    background: #0f1419;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #50c878, #4a90e2);
+    transition: width 0.3s;
+    border-radius: 4px;
+  }
+  .section {
+    margin-bottom: 22px;
+  }
+  .section-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #8a96a3;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    padding-left: 4px;
+  }
+  .item {
+    background: #1a2230;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    cursor: pointer;
+    transition: background 0.15s;
+    user-select: none;
+  }
+  .item:active { background: #232d3d; }
+  .checkbox {
+    min-width: 24px;
+    height: 24px;
+    border: 2px solid #4a5668;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .item.done .checkbox {
+    background: #50c878;
+    border-color: #50c878;
+  }
+  .checkbox::after {
+    content: "";
+    width: 6px;
+    height: 11px;
+    border: solid #fff;
+    border-width: 0 2.5px 2.5px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.15s;
+    margin-bottom: 2px;
+  }
+  .item.done .checkbox::after { transform: rotate(45deg) scale(1); }
+  .label {
+    font-size: 15px;
+    color: #e8e8e8;
+    flex: 1;
+  }
+  .item.done .label {
+    color: #6a7888;
+    text-decoration: line-through;
+  }
+  .reset-btn {
+    width: 100%;
+    background: #1a2230;
+    color: #e2729a;
+    border: 1px solid #2a3445;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+  .reset-btn:active { background: #232d3d; }
+  .footer-note {
+    text-align: center;
+    color: #5a6878;
+    font-size: 12px;
+    margin-top: 16px;
+    padding: 0 20px;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back-link">&#8249; Zurück</a>
+  <h1>Tägliche Checkliste</h1>
+  <p class="date" id="date"></p>
+
+  <div class="progress-wrap">
+    <div class="progress-text"><span id="count">0</span> von <span id="total">0</span> Regeln erledigt</div>
+    <div class="progress-bar"><div class="progress-fill" id="fill" style="width:0%"></div></div>
+  </div>
+
+  <div id="list"></div>
+
+  <button class="reset-btn" id="reset">Neuen Tag starten (alle zurücksetzen)</button>
+  <p class="footer-note">Wird automatisch pro Tag gespeichert. Beim Tageswechsel startet die Liste leer.</p>
+</div>
+
+<script>
+  const rules = [
+    { section: "Deen", items: [
+      "2 Ayat auswendig gelernt + Tafsir",
+      "1 Kapitel Madinah-Buch",
+      "10 Min Abend-Adhkar",
+      "10-20 Min Vortrag mit Familie geschaut",
+    ]},
+    { section: "Körper", items: [
+      "Fitness gemacht (oder Pause-Tag, max. 3 am Stück)",
+      "15 Min laufen",
+      "10 Min dehnen",
+      "10 Min Nackentraining",
+      "Mindestens 2500 kcal gegessen",
+      "Vit D, Magnesium, Omega 3 eingenommen",
+      "4 Gläser Wasser bis 15 Uhr",
+      "4 weitere Gläser Wasser bis 22 Uhr",
+      "Max. 1 Stück Süßes",
+      "6-8 Stunden geschlafen (Vortag)",
+      "30 Min Pflege (Klamotten, Bart, Haare, Produkte)",
+    ]},
+    { section: "Familie & Charakter", items: [
+      "15 Min Ausflug/Treffen geplant oder Ersatztätigkeit",
+      "10 Min mit Inaaya bei Eltern oder Moschee",
+      "15 Min nachgedacht: jemandem Freude machen",
+    ]},
+    { section: "Wissen", items: [
+      "10 Seiten in einem guten Buch gelesen",
+      "Max. 1h YouTube (nur nützliche Inhalte)",
+    ]},
+    { section: "Arbeit & Disziplin", items: [
+      "Max. 6h gearbeitet",
+      "Max. 2h am Stück gearbeitet",
+      "Nicht nach 18 Uhr gearbeitet",
+      "Ab 21 Uhr keine Geräte",
+      "Letzte Mahlzeit vor 21 Uhr",
+    ]},
+  ];
+
+  const today = new Date().toLocaleDateString("de-DE", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  document.getElementById("date").textContent = today;
+  const storageKey = "checklist_" + new Date().toISOString().slice(0,10);
+
+  const list = document.getElementById("list");
+  let totalCount = 0;
+  let allItems = [];
+
+  rules.forEach((sec, sIdx) => {
+    const secEl = document.createElement("div");
+    secEl.className = "section";
+    secEl.innerHTML = `<div class="section-title">${sec.section.toUpperCase()}</div>`;
+    sec.items.forEach((label, iIdx) => {
+      const id = `s${sIdx}_i${iIdx}`;
+      const item = document.createElement("div");
+      item.className = "item";
+      item.dataset.id = id;
+      item.innerHTML = `<div class="checkbox"></div><div class="label">${label}</div>`;
+      item.addEventListener("click", () => toggle(id, item));
+      secEl.appendChild(item);
+      allItems.push({ id, el: item });
+      totalCount++;
+    });
+    list.appendChild(secEl);
+  });
+
+  document.getElementById("total").textContent = totalCount;
+
+  function loadState() {
+    try {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        const checked = JSON.parse(saved);
+        allItems.forEach(({id, el}) => {
+          if (checked[id]) el.classList.add("done");
+        });
+      }
+    } catch(e) {
+      // no saved state for today yet
+    }
+    updateProgress();
+  }
+
+  function saveState() {
+    const checked = {};
+    allItems.forEach(({id, el}) => {
+      checked[id] = el.classList.contains("done");
+    });
+    try {
+      localStorage.setItem(storageKey, JSON.stringify(checked));
+    } catch(e) {
+      console.error("Save failed", e);
+    }
+  }
+
+  function toggle(id, el) {
+    el.classList.toggle("done");
+    updateProgress();
+    saveState();
+  }
+
+  function updateProgress() {
+    const done = allItems.filter(({el}) => el.classList.contains("done")).length;
+    document.getElementById("count").textContent = done;
+    document.getElementById("fill").style.width = (done/totalCount*100) + "%";
+  }
+
+  document.getElementById("reset").addEventListener("click", () => {
+    if (!confirm("Alle Häkchen für heute zurücksetzen?")) return;
+    allItems.forEach(({el}) => el.classList.remove("done"));
+    updateProgress();
+    saveState();
+  });
+
+  loadState();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+</body>
+</html>

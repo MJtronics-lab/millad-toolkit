@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mein Tagesplan</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0f1419">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #0f1419;
+    color: #e8e8e8;
+    padding: 20px;
+    line-height: 1.5;
+  }
+  .container { max-width: 700px; margin: 0 auto; }
+  .back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: #4a90e2;
+    text-decoration: none;
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+  h1 {
+    font-size: 28px;
+    margin-bottom: 8px;
+    text-align: center;
+    color: #fff;
+  }
+  .subtitle {
+    text-align: center;
+    color: #8a96a3;
+    margin-bottom: 30px;
+    font-size: 14px;
+  }
+  .block {
+    background: #1a2230;
+    border-radius: 12px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    border-left: 4px solid;
+    transition: transform 0.15s;
+  }
+  .block:hover { transform: translateX(4px); }
+  .time {
+    font-size: 13px;
+    font-weight: 600;
+    color: #8a96a3;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+  .title {
+    font-size: 17px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 8px;
+  }
+  .tasks {
+    font-size: 14px;
+    color: #c5cdd6;
+  }
+  .tasks li {
+    list-style: none;
+    padding: 3px 0;
+    padding-left: 18px;
+    position: relative;
+  }
+  .tasks li::before {
+    content: "\2022";
+    position: absolute;
+    left: 4px;
+    color: #5a6878;
+  }
+
+  .morning   { border-color: #f5a623; }
+  .work      { border-color: #4a90e2; }
+  .fitness   { border-color: #50c878; }
+  .family    { border-color: #e2729a; }
+  .evening   { border-color: #9b6dd7; }
+  .night     { border-color: #3a4a5e; }
+
+  .footer {
+    margin-top: 25px;
+    padding: 18px;
+    background: #1a2230;
+    border-radius: 12px;
+    text-align: center;
+    font-size: 13px;
+    color: #8a96a3;
+  }
+  .footer strong { color: #c5cdd6; display: block; margin-bottom: 6px; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a href="index.html" class="back-link">&#8249; Zurück</a>
+  <h1>Mein Tagesplan</h1>
+  <p class="subtitle">Flexibler Rahmen - alle 24 Regeln eingebaut</p>
+
+  <div class="block morning">
+    <div class="time">FAJR - 8:00 UHR - MORGEN</div>
+    <div class="title">Gesegnete Stunden</div>
+    <ul class="tasks">
+      <li>Fajr beten</li>
+      <li>2 Ayat auswendig lernen + Tafsir</li>
+      <li>1 Kapitel Madinah-Buch</li>
+    </ul>
+  </div>
+
+  <div class="block morning">
+    <div class="time">8:00 - 9:00 UHR - PFLEGE & FRÜHSTÜCK</div>
+    <div class="title">Frisch in den Tag</div>
+    <ul class="tasks">
+      <li>30 Min Pflege: Dusche, Bart, Haare, Klamotten, Produkte</li>
+      <li>Frühstück + Supplements (Vit D, Magnesium, Omega 3)</li>
+      <li>Erstes Glas Wasser</li>
+    </ul>
+  </div>
+
+  <div class="block work">
+    <div class="time">9:00 - 11:00 UHR - ARBEIT (BLOCK 1)</div>
+    <div class="title">Erster Arbeitsblock</div>
+    <ul class="tasks">
+      <li>Max. 2 Stunden - das Wichtigste zuerst</li>
+    </ul>
+  </div>
+
+  <div class="block fitness">
+    <div class="time">11:00 - 12:30 UHR - FITNESS</div>
+    <div class="title">Krafttraining</div>
+    <ul class="tasks">
+      <li>Fitness (4x pro Woche, nie 3 Tage Pause am Stück)</li>
+    </ul>
+  </div>
+
+  <div class="block family">
+    <div class="time">12:30 - 15:00 UHR - MITTAG & FAMILIE</div>
+    <div class="title">Hauptmahlzeit & Inaaya</div>
+    <ul class="tasks">
+      <li>Dhuhr beten</li>
+      <li>Hauptmahlzeit (Großteil der 2500 kcal)</li>
+      <li>Bis 15 Uhr: 4 Gläser Wasser intus</li>
+      <li>10+ Min mit Inaaya bei den Eltern oder Moschee</li>
+    </ul>
+  </div>
+
+  <div class="block work">
+    <div class="time">15:00 - 18:00 UHR - ARBEIT (BLOCK 2) & DENKEN</div>
+    <div class="title">Zweiter Arbeitsblock + Wissen</div>
+    <ul class="tasks">
+      <li>Max. 2 Stunden Arbeit (Tagesgrenze: 6h gesamt)</li>
+      <li>Asr beten</li>
+      <li>10 Seiten lesen</li>
+      <li>15 Min nachdenken: wem kann ich Freude machen?</li>
+      <li>15 Min Ausflug planen / Garten / Aufräumen</li>
+      <li><strong>18:00: Laptop zu</strong></li>
+    </ul>
+  </div>
+
+  <div class="block fitness">
+    <div class="time">18:00 - 18:45 UHR - NACH FEIERABEND</div>
+    <div class="title">Bewegung & Mobility</div>
+    <ul class="tasks">
+      <li>15 Min laufen (raus an die frische Luft)</li>
+      <li>10 Min dehnen</li>
+      <li>10 Min Nackentraining</li>
+    </ul>
+  </div>
+
+  <div class="block family">
+    <div class="time">18:45 - 21:00 UHR - ABEND MIT FAMILIE</div>
+    <div class="title">Familie, Deen, Essen</div>
+    <ul class="tasks">
+      <li>Maghrib beten</li>
+      <li>Letzte Mahlzeit (vor 21 Uhr fertig)</li>
+      <li>Restliche 4 Gläser Wasser bis 22 Uhr</li>
+      <li>10-20 Min Vortrag mit Familie (volle Aufmerksamkeit)</li>
+      <li>Spielen mit den Kindern</li>
+      <li>Isha beten</li>
+      <li>Optional: bis zu 1h YouTube (Politik/Islam/Bildung)</li>
+      <li>Max. 1 Stück Süßes</li>
+    </ul>
+  </div>
+
+  <div class="block evening">
+    <div class="time">AB 21:00 UHR - WIND DOWN</div>
+    <div class="title">Geräte aus, runterkommen</div>
+    <ul class="tasks">
+      <li>Keine Geräte mehr</li>
+      <li>Keine Mahlzeit mehr</li>
+      <li>10 Min Abend-Adhkar</li>
+    </ul>
+  </div>
+
+  <div class="block night">
+    <div class="time">SPÄTESTENS 22:30 UHR - SCHLAF</div>
+    <div class="title">6-8 Stunden Schlaf</div>
+    <ul class="tasks">
+      <li>Damit Fajr leicht fällt</li>
+    </ul>
+  </div>
+
+  <div class="footer">
+    <strong>Prinzip</strong>
+    Wenn ein Tag nicht klappt - am nächsten Tag wieder anfangen.<br>
+    Ohne Drama. Bismillah.
+  </div>
+</div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js');
+  }
+</script>
+</body>
+</html>
