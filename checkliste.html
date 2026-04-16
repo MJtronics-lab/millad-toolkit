@@ -29,18 +29,73 @@
     font-size: 14px;
     margin-bottom: 12px;
   }
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 4px;
+  }
   h1 {
     font-size: 24px;
     text-align: center;
     color: #fff;
-    margin-bottom: 4px;
   }
+  .settings-btn {
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 4px;
+    color: #8a96a3;
+    transition: color 0.15s;
+  }
+  .settings-btn:active { color: #4a90e2; }
   .date {
     text-align: center;
     color: #8a96a3;
     font-size: 14px;
     margin-bottom: 16px;
   }
+
+  /* Morning Reminder Banner */
+  .morning-banner {
+    background: linear-gradient(135deg, #1a1030, #0f1a2e);
+    border: 1px solid #9b6dd755;
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 16px;
+    animation: bannerPulse 2s ease-in-out infinite alternate;
+  }
+  @keyframes bannerPulse {
+    from { border-color: #9b6dd755; }
+    to { border-color: #9b6dd7; }
+  }
+  .morning-banner-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #f5a623;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .morning-banner-text {
+    font-size: 14px;
+    color: #c5cdd6;
+    line-height: 1.5;
+  }
+  .morning-banner-dismiss {
+    background: none;
+    border: 1px solid #3a4a5e;
+    color: #8a96a3;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    cursor: pointer;
+    margin-top: 10px;
+  }
+
   .progress-wrap {
     background: #1a2230;
     border-radius: 12px;
@@ -87,8 +142,12 @@
     cursor: pointer;
     transition: background 0.15s;
     user-select: none;
+    border-left: 4px solid transparent;
   }
   .item:active { background: #232d3d; }
+  .item.kern {
+    border-left-color: #f5a623;
+  }
   .checkbox {
     min-width: 24px;
     height: 24px;
@@ -115,6 +174,11 @@
     margin-bottom: 2px;
   }
   .item.done .checkbox::after { transform: rotate(45deg) scale(1); }
+  .kern-badge {
+    font-size: 14px;
+    flex-shrink: 0;
+    color: #f5a623;
+  }
   .label {
     font-size: 15px;
     color: #e8e8e8;
@@ -124,6 +188,88 @@
     color: #6a7888;
     text-decoration: line-through;
   }
+
+  /* Tag abschließen Button */
+  .finish-btn {
+    width: 100%;
+    background: linear-gradient(135deg, #f5a623, #e2729a);
+    color: #fff;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 20px;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .finish-btn:active { opacity: 0.85; transform: scale(0.98); }
+
+  /* Penalty Result Panel */
+  .penalty-panel {
+    display: none;
+    margin-top: 16px;
+    border-radius: 14px;
+    padding: 20px;
+    animation: panelIn 0.3s ease-out;
+  }
+  @keyframes panelIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .penalty-panel.show { display: block; }
+  .penalty-panel.clean {
+    background: linear-gradient(135deg, #0a2e22, #1a2230);
+    border: 1px solid #50c87855;
+  }
+  .penalty-panel.leicht {
+    background: linear-gradient(135deg, #1a1a30, #1a2230);
+    border: 1px solid #4a90e255;
+  }
+  .penalty-panel.voll {
+    background: linear-gradient(135deg, #2e0a0a, #1a2230);
+    border: 1px solid #e2729a55;
+  }
+  .penalty-icon { font-size: 36px; text-align: center; margin-bottom: 10px; }
+  .penalty-title {
+    font-size: 18px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+  .penalty-panel.clean .penalty-title { color: #50c878; }
+  .penalty-panel.leicht .penalty-title { color: #4a90e2; }
+  .penalty-panel.voll .penalty-title { color: #e2729a; }
+  .penalty-desc {
+    font-size: 14px;
+    color: #c5cdd6;
+    text-align: center;
+    line-height: 1.6;
+  }
+  .penalty-detail {
+    margin-top: 14px;
+    background: #0f141988;
+    border-radius: 10px;
+    padding: 12px 16px;
+  }
+  .penalty-detail-title {
+    font-size: 12px;
+    font-weight: 700;
+    color: #8a96a3;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+  }
+  .penalty-violation {
+    font-size: 13px;
+    color: #e8e8e8;
+    padding: 4px 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .penalty-violation .v-kern { color: #f5a623; }
+  .penalty-violation .v-neben { color: #8a96a3; }
+
   .reset-btn {
     width: 100%;
     background: #1a2230;
@@ -144,26 +290,173 @@
     margin-top: 16px;
     padding: 0 20px;
   }
+
+  /* Settings Modal */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: #000000cc;
+    z-index: 1000;
+    align-items: flex-end;
+    justify-content: center;
+    animation: fadeIn 0.2s;
+  }
+  .modal-overlay.show { display: flex; }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .modal {
+    background: #1a2230;
+    border-radius: 16px 16px 0 0;
+    padding: 20px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+    animation: slideUp 0.3s ease-out;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(100%); }
+    to { transform: translateY(0); }
+  }
+  .modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+  .modal-title { font-size: 18px; font-weight: 700; color: #fff; }
+  .modal-close {
+    background: none;
+    border: none;
+    color: #8a96a3;
+    font-size: 24px;
+    cursor: pointer;
+    padding: 4px 8px;
+  }
+  .modal-desc {
+    font-size: 13px;
+    color: #8a96a3;
+    margin-bottom: 16px;
+    line-height: 1.5;
+  }
+  .modal-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 14px;
+    background: #0f1419;
+    border-radius: 10px;
+    margin-bottom: 6px;
+    cursor: pointer;
+  }
+  .modal-item:active { background: #151c26; }
+  .modal-cb {
+    min-width: 22px;
+    height: 22px;
+    border: 2px solid #4a5668;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+  }
+  .modal-item.active .modal-cb {
+    background: #f5a623;
+    border-color: #f5a623;
+  }
+  .modal-cb::after {
+    content: "";
+    width: 5px;
+    height: 9px;
+    border: solid #fff;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg) scale(0);
+    transition: transform 0.15s;
+    margin-bottom: 2px;
+  }
+  .modal-item.active .modal-cb::after { transform: rotate(45deg) scale(1); }
+  .modal-label { font-size: 14px; color: #e8e8e8; flex: 1; }
+  .modal-save {
+    width: 100%;
+    background: #4a90e2;
+    color: #fff;
+    border: none;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 14px;
+  }
+  .modal-save:active { opacity: 0.85; }
+
+  .kern-legend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: center;
+    margin-bottom: 16px;
+    font-size: 13px;
+    color: #8a96a3;
+  }
+  .kern-legend-dot {
+    width: 12px;
+    height: 4px;
+    background: #f5a623;
+    border-radius: 2px;
+  }
 </style>
 </head>
 <body>
 <div class="container">
   <a href="index.html" class="back-link">&#8249; Zurück</a>
-  <h1>Tägliche Checkliste</h1>
+  <div class="header-row">
+    <h1>Tägliche Checkliste</h1>
+    <button class="settings-btn" id="open-settings" title="Kern-Regeln anpassen">&#9881;</button>
+  </div>
   <p class="date" id="date"></p>
+
+  <div id="morning-reminder"></div>
 
   <div class="progress-wrap">
     <div class="progress-text"><span id="count">0</span> von <span id="total">0</span> Regeln erledigt</div>
     <div class="progress-bar"><div class="progress-fill" id="fill" style="width:0%"></div></div>
   </div>
 
+  <div class="kern-legend">
+    <span class="kern-legend-dot"></span>
+    <span>= Kern-Regel (★)</span>
+    <span style="margin-left:8px; color:#5a6878;">Verstoß = volle Strafe</span>
+  </div>
+
   <div id="list"></div>
+
+  <button class="finish-btn" id="finish">&#9889; Tag abschließen</button>
+
+  <div class="penalty-panel" id="penalty"></div>
 
   <button class="reset-btn" id="reset">Neuen Tag starten (alle zurücksetzen)</button>
   <p class="footer-note">Wird automatisch pro Tag gespeichert. Beim Tageswechsel startet die Liste leer.</p>
 </div>
 
+<!-- Settings Modal -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">★ Kern-Regeln</div>
+      <button class="modal-close" id="close-modal">&times;</button>
+    </div>
+    <div class="modal-desc">
+      Wähle welche Regeln als Kern-Regeln gelten. Ein Verstoß bei einer Kern-Regel bedeutet automatisch volle Strafe (30 Min früher aufstehen + kalte Dusche).
+    </div>
+    <div id="modal-list"></div>
+    <button class="modal-save" id="save-settings">Speichern</button>
+  </div>
+</div>
+
 <script>
+  // === DATA ===
   const rules = [
     { section: "Deen", items: [
       "2 Ayat auswendig gelernt + Tafsir",
@@ -202,13 +495,36 @@
     ]},
   ];
 
-  const today = new Date().toLocaleDateString("de-DE", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
-  document.getElementById("date").textContent = today;
-  const storageKey = "checklist_" + new Date().toISOString().slice(0,10);
+  const DEFAULT_KERN = ['s0_i0', 's1_i0', 's1_i8', 's3_i1', 's4_i2', 's4_i3', 's4_i4'];
 
-  const list = document.getElementById("list");
-  let totalCount = 0;
+  // === STATE ===
+  const today = new Date().toLocaleDateString("de-DE", { weekday:"long", day:"numeric", month:"long", year:"numeric" });
+  const todayISO = new Date().toISOString().slice(0, 10);
+  document.getElementById("date").textContent = today;
+  const storageKey = "checklist_" + todayISO;
+
   let allItems = [];
+  let totalCount = 0;
+  let idToLabel = {};
+
+  function getKernRules() {
+    try {
+      const saved = localStorage.getItem('kern_rules');
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return [...DEFAULT_KERN];
+  }
+
+  function saveKernRules(kernIds) {
+    localStorage.setItem('kern_rules', JSON.stringify(kernIds));
+  }
+
+  function isKern(id) {
+    return getKernRules().includes(id);
+  }
+
+  // === BUILD LIST ===
+  const list = document.getElementById("list");
 
   rules.forEach((sec, sIdx) => {
     const secEl = document.createElement("div");
@@ -216,13 +532,15 @@
     secEl.innerHTML = `<div class="section-title">${sec.section.toUpperCase()}</div>`;
     sec.items.forEach((label, iIdx) => {
       const id = `s${sIdx}_i${iIdx}`;
+      idToLabel[id] = label;
       const item = document.createElement("div");
-      item.className = "item";
+      item.className = "item" + (isKern(id) ? " kern" : "");
       item.dataset.id = id;
-      item.innerHTML = `<div class="checkbox"></div><div class="label">${label}</div>`;
+      const badge = isKern(id) ? '<div class="kern-badge">★</div>' : '';
+      item.innerHTML = `<div class="checkbox"></div><div class="label">${label}</div>${badge}`;
       item.addEventListener("click", () => toggle(id, item));
       secEl.appendChild(item);
-      allItems.push({ id, el: item });
+      allItems.push({ id, el: item, label });
       totalCount++;
     });
     list.appendChild(secEl);
@@ -230,6 +548,7 @@
 
   document.getElementById("total").textContent = totalCount;
 
+  // === CHECKLIST STATE ===
   function loadState() {
     try {
       const saved = localStorage.getItem(storageKey);
@@ -239,9 +558,7 @@
           if (checked[id]) el.classList.add("done");
         });
       }
-    } catch(e) {
-      // no saved state for today yet
-    }
+    } catch(e) {}
     updateProgress();
   }
 
@@ -250,11 +567,7 @@
     allItems.forEach(({id, el}) => {
       checked[id] = el.classList.contains("done");
     });
-    try {
-      localStorage.setItem(storageKey, JSON.stringify(checked));
-    } catch(e) {
-      console.error("Save failed", e);
-    }
+    localStorage.setItem(storageKey, JSON.stringify(checked));
   }
 
   function toggle(id, el) {
@@ -266,18 +579,240 @@
   function updateProgress() {
     const done = allItems.filter(({el}) => el.classList.contains("done")).length;
     document.getElementById("count").textContent = done;
-    document.getElementById("fill").style.width = (done/totalCount*100) + "%";
+    document.getElementById("fill").style.width = (done / totalCount * 100) + "%";
   }
 
   document.getElementById("reset").addEventListener("click", () => {
     if (!confirm("Alle Häkchen für heute zurücksetzen?")) return;
     allItems.forEach(({el}) => el.classList.remove("done"));
+    const panel = document.getElementById("penalty");
+    panel.classList.remove("show");
+    localStorage.removeItem('penalty_' + todayISO);
     updateProgress();
     saveState();
   });
 
   loadState();
 
+  // === PENALTY SYSTEM ===
+  function calculatePenalty() {
+    const kern = getKernRules();
+    const kernViolations = [];
+    const nebenViolations = [];
+
+    allItems.forEach(({id, el, label}) => {
+      if (el.classList.contains("done")) return;
+      if (kern.includes(id)) {
+        kernViolations.push({ id, label, type: 'kern' });
+      } else {
+        nebenViolations.push({ id, label, type: 'neben' });
+      }
+    });
+
+    let level = 'clean';
+    let title = '';
+    let desc = '';
+    let icon = '';
+
+    if (kernViolations.length > 0) {
+      level = 'voll';
+      title = 'Volle Strafe morgen';
+      desc = '30 Minuten früher aufstehen + kalte Dusche';
+      icon = '🥶';
+    } else if (nebenViolations.length >= 2) {
+      level = 'voll';
+      title = 'Volle Strafe morgen';
+      desc = '30 Minuten früher aufstehen + kalte Dusche';
+      icon = '🥶';
+    } else if (nebenViolations.length === 1) {
+      level = 'leicht';
+      title = 'Kalte Dusche morgen';
+      desc = 'Ein Neben-Regel Verstoß — kalte Dusche reicht';
+      icon = '🚿';
+    } else {
+      level = 'clean';
+      title = 'Kein Verstoß — Alhamdulillah!';
+      desc = 'Alles erledigt. Weiter so!';
+      icon = '💪';
+    }
+
+    return { level, title, desc, icon, kernViolations, nebenViolations };
+  }
+
+  function showPenalty(result) {
+    const panel = document.getElementById("penalty");
+    panel.className = 'penalty-panel show ' + result.level;
+
+    let violations = '';
+    if (result.kernViolations.length > 0 || result.nebenViolations.length > 0) {
+      violations = '<div class="penalty-detail"><div class="penalty-detail-title">VERSTÖSSE</div>';
+      result.kernViolations.forEach(v => {
+        violations += `<div class="penalty-violation"><span class="v-kern">★</span> ${v.label}</div>`;
+      });
+      result.nebenViolations.forEach(v => {
+        violations += `<div class="penalty-violation"><span class="v-neben">○</span> ${v.label}</div>`;
+      });
+      violations += '</div>';
+    }
+
+    panel.innerHTML = `
+      <div class="penalty-icon">${result.icon}</div>
+      <div class="penalty-title">${result.title}</div>
+      <div class="penalty-desc">${result.desc}</div>
+      ${violations}
+    `;
+
+    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function savePenaltyForTomorrow(result) {
+    if (result.level === 'clean') {
+      localStorage.removeItem('penalty_tomorrow');
+      return;
+    }
+
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowISO = tomorrow.toISOString().slice(0, 10);
+
+    const penalty = {
+      date: tomorrowISO,
+      level: result.level,
+      title: result.title,
+      desc: result.desc,
+      kernViolations: result.kernViolations.map(v => v.label),
+      nebenViolations: result.nebenViolations.map(v => v.label),
+    };
+
+    localStorage.setItem('penalty_tomorrow', JSON.stringify(penalty));
+    localStorage.setItem('penalty_' + todayISO, JSON.stringify(penalty));
+  }
+
+  document.getElementById("finish").addEventListener("click", () => {
+    const done = allItems.filter(({el}) => el.classList.contains("done")).length;
+    if (done === 0) {
+      if (!confirm("Du hast noch nichts abgehakt. Trotzdem abschließen?")) return;
+    }
+
+    const result = calculatePenalty();
+    showPenalty(result);
+    savePenaltyForTomorrow(result);
+  });
+
+  // === MORNING REMINDER ===
+  function checkMorningReminder() {
+    const area = document.getElementById("morning-reminder");
+    try {
+      const saved = localStorage.getItem('penalty_tomorrow');
+      if (!saved) return;
+      const penalty = JSON.parse(saved);
+      if (penalty.date !== todayISO) {
+        localStorage.removeItem('penalty_tomorrow');
+        return;
+      }
+      if (sessionStorage.getItem('reminder_dismissed_' + todayISO)) return;
+
+      let details = '';
+      if (penalty.kernViolations && penalty.kernViolations.length > 0) {
+        details += '<br><strong style="color:#f5a623;">Kern:</strong> ' + penalty.kernViolations.join(', ');
+      }
+      if (penalty.nebenViolations && penalty.nebenViolations.length > 0) {
+        details += '<br><strong style="color:#8a96a3;">Neben:</strong> ' + penalty.nebenViolations.join(', ');
+      }
+
+      area.innerHTML = `
+        <div class="morning-banner">
+          <div class="morning-banner-title">⚡ Heute fällig</div>
+          <div class="morning-banner-text">
+            <strong style="color:#fff;">${penalty.level === 'voll' ? '30 Min früher aufstehen + kalte Dusche' : 'Kalte Dusche'}</strong>
+            ${details}
+          </div>
+          <button class="morning-banner-dismiss" id="dismiss-reminder">Erledigt ✓</button>
+        </div>
+      `;
+
+      document.getElementById("dismiss-reminder").addEventListener("click", () => {
+        area.innerHTML = '';
+        sessionStorage.setItem('reminder_dismissed_' + todayISO, '1');
+        localStorage.removeItem('penalty_tomorrow');
+      });
+    } catch(e) {}
+  }
+
+  checkMorningReminder();
+
+  // === SETTINGS MODAL ===
+  const modal = document.getElementById("modal");
+  let tempKern = [];
+
+  function openSettings() {
+    tempKern = [...getKernRules()];
+    renderModalList();
+    modal.classList.add("show");
+  }
+
+  function closeSettings() {
+    modal.classList.remove("show");
+  }
+
+  function renderModalList() {
+    const ml = document.getElementById("modal-list");
+    ml.innerHTML = '';
+    rules.forEach((sec, sIdx) => {
+      sec.items.forEach((label, iIdx) => {
+        const id = `s${sIdx}_i${iIdx}`;
+        const active = tempKern.includes(id);
+        const item = document.createElement("div");
+        item.className = 'modal-item' + (active ? ' active' : '');
+        item.dataset.id = id;
+        item.innerHTML = `<div class="modal-cb"></div><div class="modal-label">${label}</div>`;
+        item.addEventListener("click", () => {
+          const idx = tempKern.indexOf(id);
+          if (idx >= 0) {
+            tempKern.splice(idx, 1);
+            item.classList.remove("active");
+          } else {
+            tempKern.push(id);
+            item.classList.add("active");
+          }
+        });
+        ml.appendChild(item);
+      });
+    });
+  }
+
+  document.getElementById("open-settings").addEventListener("click", openSettings);
+  document.getElementById("close-modal").addEventListener("click", closeSettings);
+  modal.addEventListener("click", (e) => {
+    if (e.target === modal) closeSettings();
+  });
+
+  document.getElementById("save-settings").addEventListener("click", () => {
+    saveKernRules(tempKern);
+    closeSettings();
+    refreshKernMarkers();
+  });
+
+  function refreshKernMarkers() {
+    const kern = getKernRules();
+    allItems.forEach(({id, el}) => {
+      if (kern.includes(id)) {
+        el.classList.add("kern");
+        if (!el.querySelector('.kern-badge')) {
+          const badge = document.createElement('div');
+          badge.className = 'kern-badge';
+          badge.textContent = '★';
+          el.appendChild(badge);
+        }
+      } else {
+        el.classList.remove("kern");
+        const badge = el.querySelector('.kern-badge');
+        if (badge) badge.remove();
+      }
+    });
+  }
+
+  // === SERVICE WORKER ===
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js');
   }
