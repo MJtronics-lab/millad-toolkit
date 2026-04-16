@@ -1,4 +1,4 @@
-const CACHE_NAME = 'toolkit-v6';
+const CACHE_NAME = 'toolkit-v7';
 const ASSETS = [
   './',
   './index.html',

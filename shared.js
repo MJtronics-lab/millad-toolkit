@@ -14,7 +14,6 @@ const RULES = [
     "Max. 2h am Stück gearbeitet",
   ]},
   { section: "Mittag & Familie (12:30–15:00)", items: [
-    "Mindestens 2500 kcal gegessen",
     "10 Min mit Inaaya bei Eltern oder Moschee",
   ]},
   // ↑ Water tracker is rendered here in the UI (not in rules array)
@@ -44,7 +43,8 @@ const RULES = [
 
 const DEFAULT_KERN = ['s0_i1', 's1_i0', 's3_i4', 's5_i1', 's5_i2', 's5_i3', 's6_i0'];
 const WATER_GOAL = 8;
-const RULES_VERSION = 2;
+const CALORIE_GOAL = 2500;
+const RULES_VERSION = 3;
 
 // Migrate old kern_rules from v1 layout
 (function migrateKernRules() {
@@ -65,9 +65,11 @@ RULES.forEach((sec, sIdx) => {
     ID_TO_LABEL[id] = label;
   });
 });
-// Water tracker as virtual rule
+// Virtual tracker rules
 ALL_RULE_IDS.push('water');
 ID_TO_LABEL['water'] = 'Wasser (8 Gläser)';
+ALL_RULE_IDS.push('calories');
+ID_TO_LABEL['calories'] = 'Kalorien (2500 kcal)';
 
 function getKernRules() {
   try {
@@ -97,6 +99,18 @@ function getWaterCount(iso) {
 
 function setWaterCount(iso, count) {
   localStorage.setItem('water_' + iso, String(Math.max(0, Math.min(count, 12))));
+}
+
+function getCalories(iso) {
+  try {
+    const v = localStorage.getItem('calories_' + iso);
+    if (v !== null) return parseInt(v, 10) || 0;
+  } catch(e) {}
+  return 0;
+}
+
+function setCalories(iso, amount) {
+  localStorage.setItem('calories_' + iso, String(Math.max(0, amount)));
 }
 
 function getDayChecklist(iso) {
@@ -138,7 +152,17 @@ function analyzeDayResult(iso) {
     if (waterDone) kernDone++;
   }
 
-  const items = { ...data, water: waterDone };
+  // Calorie tracker
+  total++;
+  const cals = getCalories(iso);
+  const calsDone = cals >= CALORIE_GOAL;
+  if (calsDone) done++;
+  if (kern.includes('calories')) {
+    kernTotal++;
+    if (calsDone) kernDone++;
+  }
+
+  const items = { ...data, water: waterDone, calories: calsDone };
 
   return {
     done, total, kernDone, kernTotal,
